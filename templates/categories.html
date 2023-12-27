@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Categorías</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: aquamarine;
+        }
+       
+    h2 {
+        color: #333; /* Color del texto del encabezado */
+    }
+
+    .list-group {
+        list-style: none; /* Elimina los puntos de la lista */
+        padding: 0; /* Elimina el espacio interno predeterminado de la lista */
+    }
+
+    .list-group-item {
+        position: relative;
+        background-color: #f8f9fa; /* Color de fondo de cada elemento de la lista */
+        border: 1px solid #dee2e6; /* Borde alrededor de cada elemento */
+        margin-bottom: 8px; /* Espacio entre elementos de la lista */
+        border-radius: 8px;
+        padding: 10px; /* Espaciado interno de cada elemento */
+        transition: transform 0.3s ease;
+    }
+
+   
+    .list-group-item:hover {
+        transform: scale(1.05);
+    }
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <a class="navbar-brand" href="/">Categorizar</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav">
+            <li class="nav-item active">
+                <a class="nav-link" href="/">Documentos</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/add_document">Subir Documento</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/my_documents">Mis Documentos</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/categories">Categorías</a>
+            </li>
+           
+        </ul>
+    </div>
+</nav>
+
+<div class="container mt-4">
+    <h2>Categorías</h2>
+    <ul class="list-group">
+        {% for category in categories %}
+            <li class="list-group-item">{{ category }}</li>
+        {% endfor %}
+    </ul>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+
+</body>
+</html>

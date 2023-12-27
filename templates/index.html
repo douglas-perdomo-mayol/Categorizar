@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Categorizar</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+
+    <style>
+        body {
+            background-color: aquamarine;
+        }
+        #searchInput {
+        padding: 8px;
+        font-size: 16px;
+        margin-right: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+    }
+
+        button {
+        padding: 8px 16px;
+        font-size: 16px;
+        cursor: pointer;
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        border-radius: 4px;
+    }
+
+    button:hover {
+        background-color: #0056b3;
+    }
+    #searchInput {
+            margin-bottom: 20px;
+        }
+
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <a class="navbar-brand" href="/">Categorizar</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav">
+            <li class="nav-item active">
+                <a class="nav-link" href="/">Documentos</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/add_document">Subir Documento</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/my_documents">Mis Documentos</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/categories">Categorías</a>
+            </li>
+            
+        </ul>
+    </div>
+</nav>
+
+<div class="container mt-4">
+    <h2>Listado de Documentos</h2>
+    
+        <input type="text" id="searchInput" class="form-control" placeholder="Buscar documentos...">
+    <ul id="documentList">
+        <!-- Aquí se mostrarán los documentos -->
+        <li>
+            <button class="btn btn-primary categorizeBtn" data-title="Nombre del Documento 1">Categorizar</button>
+            <span>Nombre del Documento 1</span>
+           
+        </li>
+        <li>
+            <button class="btn btn-primary categorizeBtn" data-title="Nombre del Documento 2">Categorizar</button>
+            <span>Nombre del Documento 2</span>
+        </li>
+        <!-- Agrega más elementos según sea necesario -->
+    </ul>
+
+</div>
+
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+
+<script>
+    // Script para manejar el clic en el botón "Categorizar"
+    $(document).ready(function() {
+        $('.categorizeBtn').click(function() {
+            var title = $(this).data('title');
+            // Redirige a la página de "Subir Documento" y configura el valor del campo de entrada de texto
+            window.location.href = '/add_document';
+            // Usa localStorage para almacenar temporalmente el título y recuperarlo en la página "Subir Documento"
+            localStorage.setItem('documentoTitulo', title);
+        });
+
+        // Script para filtrar documentos según la búsqueda
+        $('#searchInput').on('input', function() {
+            var searchValue = $(this).val().toLowerCase();
+            $('#documentList .document-item').each(function() {
+                var documentText = $(this).text().toLowerCase();
+                var isVisible = documentText.includes(searchValue.trim());
+                $(this).toggle(isVisible);
+            });
+        });
+    });
+</script>
+</body>
+</html>

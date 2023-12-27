@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mis Documentos - Document Repository</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <!-- Agrega la referencia a Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+
+    <style>
+        .star {
+            position: absolute;
+            top: 9px;
+            /* Ajusta según sea necesario */
+            right: 9px;
+            /* Ajusta según sea necesario */
+            color: black;
+            /* Color inicial de la estrella */
+            cursor: pointer;
+        }
+
+        .star.clicked {
+            color: yellow;
+            /* Cambia el color al hacer clic */
+        }
+
+        body {
+            background-color: aquamarine;
+        }
+
+    .card {
+        position: relative;
+        height: 100%;
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+        transition: transform 0.3s ease;
+    }
+    .card:hover {
+        transform: scale(1.05);
+    }
+
+    .edit-button,
+    .delete-button {
+        margin-top: 1rem;
+        color: #fff;
+        border: #333;
+    }
+    </style>
+</head>
+
+<body>
+
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <a class="navbar-brand" href="/">Categorizar</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+                <li class="nav-item active">
+                    <a class="nav-link" href="/">Documentos</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/add_document">Subir Documento</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/my_documents">Mis Documentos</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/categories">Categorías</a>
+                </li>
+
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <h2>Mis Documentos</h2>
+
+        <!-- Cambios para la vista de cuadrícula o lista -->
+        <div class="row">
+            {% for document in documents %}
+            <div class="col-md-4 mb-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ document.title }}</h5>
+                        <p class="card-text">Categoría: {{ document.category }}</p>
+                        <div class="star position-absolute top-0 end-0 mt-2 me-2">
+                            <i class="fas fa-star"></i>
+                        </div>
+
+                        <!-- Nuevos botones para editar y eliminar -->
+                        <a href="{{ url_for('edit_document', document_id=document.id) }}"
+                            class="btn btn-primary edit-button" title="Editar">
+                            <i class="fas fa-edit"></i>
+                        </a>
+                        <a href="#" class="btn btn-danger delete-button"
+                            onclick="eliminarDocumento('{{ document.id }}')" title="Eliminar">
+                            <i class="fas fa-trash-alt"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/js/all.min.js"></script>
+
+   
+
+    <script>
+        $(function () {
+            // Manejar el clic en las opciones de categoría
+            $('.category-option').on('click', function () {
+                var selectedCategory = $(this).data('category');
+
+                // Ocultar todos los elementos y mostrar solo los que pertenecen a la categoría seleccionada
+                $('.document-item').hide().filter('[data-category="' + selectedCategory + '"]').show();
+            });
+        });
+    </script>
+
+<script>
+    var deleteUrl = "{{ delete_document_url }}";
+
+    function eliminarDocumento(documentId) {
+        if (confirm('¿Estás seguro de que quieres eliminar este documento?')) {
+            // Actualiza la URL con el documentId
+            var fullDeleteUrl = deleteUrl + documentId;
+
+            // Realiza la solicitud al servidor
+            fetch(fullDeleteUrl, {
+                method: 'DELETE', // Utiliza el método DELETE para eliminar el documento
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Error en la solicitud: ' + response.status);
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    // Si la eliminación fue exitosa, actualiza la lista de documentos
+                    window.location.reload();
+                } else {
+                    console.error('Error al eliminar el documento:', data.error);
+                }
+            })
+            .catch(error => {
+                console.error('Error en la solicitud:', error);
+            });
+        }
+    }
+
+    document.querySelectorAll('.delete-button').forEach(function (deleteButton) {
+        deleteButton.addEventListener('click', function () {
+            var documentId = deleteButton.closest('.card').getAttribute('data-document-id');
+            eliminarDocumento(documentId);
+        });
+    });
+</script>
+
+<script>
+    function editarDocumento(documentId) {
+        // Obtén la información actual del documento
+        var currentTitle = prompt('Nuevo título:', '');
+        var currentCategory = prompt('Nueva categoría:', '');
+
+        // Verifica si se proporcionaron datos
+        if (currentTitle === null || currentCategory === null) {
+            console.log('Edición cancelada.');
+            return;
+        }
+
+        // Realiza la solicitud al servidor para editar el documento
+        $.ajax({
+            type: 'POST',
+            url: '/edit_document', // Ajusta la URL según tu aplicación
+            data: {
+                documentId: documentId,
+                newTitle: currentTitle,
+                newCategory: currentCategory
+            },
+            success: function (data) {
+                if (data.success) {
+                    // Si la edición fue exitosa, actualiza la lista de documentos o realiza otras acciones necesarias
+                    console.log('Documento editado con éxito.');
+                    // Actualiza los datos del documento en la interfaz
+                    actualizarInterfaz(documentId, currentTitle, currentCategory);
+                } else {
+                    console.error('Error al editar el documento:', data.error);
+                }
+            },
+            error: function (error) {
+                console.error('Error en la solicitud:', error);
+            }
+        });
+    }
+
+    function actualizarInterfaz(documentId, newTitle, newCategory) {
+        // Actualiza los datos del documento en la interfaz
+        var card = document.querySelector('.card[data-document-id="' + documentId + '"]');
+        if (card) {
+            card.querySelector('.card-title').textContent = newTitle;
+            card.querySelector('.card-text').textContent = 'Categoría: ' + newCategory;
+        }
+    }
+
+    document.querySelectorAll('.edit-button').forEach(function (editButton) {
+        editButton.addEventListener('click', function () {
+            var documentId = editButton.closest('.card').getAttribute('data-document-id');
+            editarDocumento(documentId);
+        });
+    });
+</script>
+
+<script>
+    document.querySelectorAll('.star').forEach(function (star) {
+        star.addEventListener('click', function () {
+            // Agrega o quita la clase 'clicked' al contenedor de la estrella
+            star.classList.toggle('clicked');
+
+            // Obtén información del documento (ajusta según tus necesidades)
+            var documentTitle = star.closest('.card').querySelector('.card-title').textContent;
+            var documentCategory = star.closest('.card').querySelector('.card-text').textContent.replace('Categoría: ', '');
+
+            // Almacena la información del documento destacado en una cookie
+            updateFavoriteList(documentTitle, documentCategory);
+        });
+    });
+
+    function updateFavoriteList(title, category) {
+        var favoriteDocuments = getFavoriteDocuments();
+
+        // Verifica si el documento ya está en la lista
+        var isDocumentInList = false;
+
+        // Recorre los elementos de la lista de favoritos
+        favoriteDocuments.forEach(function (document) {
+            // Compara el título y la categoría del documento
+            if (document.title === title && document.category === category) {
+                isDocumentInList = true;
+                // Elimina el documento de la lista (ya no es favorito)
+                removeFromFavorites(document);
+            }
+        });
+
+        if (!isDocumentInList) {
+            // Si el documento no está en la lista, agrégalo (es favorito)
+            addToFavorites({ title, category });
+        }
+    }
+
+    function addToFavorites(document) {
+        var favoriteDocuments = getFavoriteDocuments();
+
+        // Agrega el documento a la lista de favoritos
+        favoriteDocuments.push(document);
+
+        // Almacena la lista actualizada en la cookie
+        setFavoriteDocuments(favoriteDocuments);
+    }
+
+    function removeFromFavorites(document) {
+        var favoriteDocuments = getFavoriteDocuments();
+
+        // Elimina el documento de la lista de favoritos
+        favoriteDocuments = favoriteDocuments.filter(function (doc) {
+            return !(doc.title === document.title && doc.category === document.category);
+        });
+
+        // Almacena la lista actualizada en la cookie
+        setFavoriteDocuments(favoriteDocuments);
+    }
+
+    function getFavoriteDocuments() {
+        var cookieValue = document.cookie.replace(/(?:(?:^|.*;\s*)favoriteDocuments\s*\=\s*([^;]*).*$)|^.*$/, "$1");
+
+        // Parsea el valor de la cookie
+        try {
+            return JSON.parse(decodeURIComponent(cookieValue)) || [];
+        } catch (e) {
+            return [];
+        }
+    }
+
+    function setFavoriteDocuments(favoriteDocuments) {
+        // Convierte la lista de favoritos a JSON y codifica para almacenar en la cookie
+        var cookieValue = encodeURIComponent(JSON.stringify(favoriteDocuments));
+
+        // Establece la cookie con la lista de documentos favoritos
+        document.cookie = "favoriteDocuments=" + cookieValue;
+    }
+</script>
+</body>
+
+</body>
+
+</html>
